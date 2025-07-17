@@ -1,0 +1,312 @@
+---
+title: "MSRI_Proj_Dashboard"
+output:
+  flexdashboard::flex_dashboard:
+    orientation: rows
+    vertical_layout: fill
+    theme: flatly
+runtime: shiny
+---
+
+```{r setup, include=FALSE}
+# Note: Make sure all packages are installed first:
+# install.packages(c("flexdashboard", "shiny", "ggplot2", "dplyr", "plotly", "readr", "tidyr", "scales", repos = "http://cran.us.r-project.org))
+# Load all required packages
+options(repos = c(CRAN = "https://cran.rstudio.com/"))
+
+library(shiny)        # For interactive elements
+library(ggplot2)      # For visualizations
+library(dplyr)        # For data manipulation
+library(plotly)       # For interactive plots
+library(readr)        # For data loading
+library(tidyr)        # For data reshaping
+library(scales)       # For better axis formatting
+library(tidyverse)
+library(lubridate)
+library(hrbrthemes)
+library(urbnmapr)
+library(rmarkdown)
+library(tidycensus)
+library(intrval)
+library(leaflet)
+library(sf)
+library(flexdashboard)
+library(htmltools)
+library(viridis)
+library(shinydashboard)
+library(pals)
+
+fl_pop_changed <- read.csv("MSRI-Proj/FL_2016_pop_changed.csv")
+
+counties <- usmap::us_map(regions = "counties")
+years = 2010:2020
+my_vars <- c("B19013_001")
+
+income_data_counties <- map_dfr(years, function(y) {
+  get_acs(
+    geography = "county",  # Example: county level
+    state = "FL",           # Example: California
+    variables = my_vars,
+    year = y,
+    survey = "acs5",       # 5-year ACS estimates
+    geometry = FALSE        # No spatial data
+  ) %>%
+    mutate(year = y) %>%  # Add a year column
+    mutate(NAME = gsub(", Florida","",NAME)) %>%
+    right_join(counties %>% filter(full == "Florida"),
+               by = c("NAME" = "county"))  # Add a year column
+})
+
+pal_continuous <- colorNumeric(
+  palette = viridis(400),
+  domain = sort(income_data_counties$estimate,decreasing = FALSE)
+)
+
+income_data_counties_2010 <- income_data_counties %>%
+  filter(year == 2010)
+income_data_counties_2011 <- income_data_counties %>%
+  filter(year == 2011)
+income_data_counties_2012 <- income_data_counties %>%
+  filter(year == 2012)
+income_data_counties_2013 <- income_data_counties %>%
+  filter(year == 2013)
+income_data_counties_2014 <- income_data_counties %>%
+  filter(year == 2014)
+income_data_counties_2015 <- income_data_counties %>%
+  filter(year == 2015)
+income_data_counties_2016 <- income_data_counties %>%
+  filter(year == 2016)
+income_data_counties_2017 <- income_data_counties %>%
+  filter(year == 2017)
+income_data_counties_2018 <- income_data_counties %>%
+  filter(year == 2018)
+income_data_counties_2019 <- income_data_counties %>%
+  filter(year == 2019)
+income_data_counties_2020 <- income_data_counties %>%
+  filter(year == 2020)
+
+income_data_counties_2010_spatial <- st_as_sf(income_data_counties_2010)
+income_data_counties_2011_spatial <- st_as_sf(income_data_counties_2011)
+income_data_counties_2012_spatial <- st_as_sf(income_data_counties_2012)
+income_data_counties_2013_spatial <- st_as_sf(income_data_counties_2013)
+income_data_counties_2014_spatial <- st_as_sf(income_data_counties_2014)
+income_data_counties_2015_spatial <- st_as_sf(income_data_counties_2015)
+income_data_counties_2016_spatial <- st_as_sf(income_data_counties_2016)
+income_data_counties_2017_spatial <- st_as_sf(income_data_counties_2017)
+income_data_counties_2018_spatial <- st_as_sf(income_data_counties_2018)
+income_data_counties_2019_spatial <- st_as_sf(income_data_counties_2019)
+income_data_counties_2020_spatial <- st_as_sf(income_data_counties_2020)
+
+m10 <- mapview::mapview(income_data_counties_2010_spatial, zcol='estimate',
+                       layer.name='Estimated Median Income',
+                       legend = FALSE,
+                       col.regions = viridis
+)
+m11 <- mapview::mapview(income_data_counties_2011_spatial, zcol='estimate',
+                        layer.name='Estimated Median Income',
+                        legend = FALSE,
+                        col.regions = viridis
+)
+m12 <- mapview::mapview(income_data_counties_2012_spatial, zcol='estimate',
+                        layer.name='Estimated Median Income',
+                        legend = FALSE,
+                        col.regions = viridis
+)
+m13 <- mapview::mapview(income_data_counties_2013_spatial, zcol='estimate',
+                        layer.name='Estimated Median Income',
+                        legend = FALSE,
+                        col.regions = viridis
+)
+m14 <- mapview::mapview(income_data_counties_2014_spatial, zcol='estimate',
+                        layer.name='Estimated Median Income',
+                        legend = FALSE,
+                        col.regions = viridis
+)
+m15 <- mapview::mapview(income_data_counties_2015_spatial, zcol='estimate',
+                        layer.name='Estimated Median Income',
+                        legend = FALSE,
+                        col.regions = viridis
+)
+m16 <- mapview::mapview(income_data_counties_2016_spatial, zcol='estimate',
+                        layer.name='Estimated Median Income',
+                        legend = FALSE,
+                        col.regions = viridis
+)
+m17 <- mapview::mapview(income_data_counties_2017_spatial, zcol='estimate',
+                        layer.name='Estimated Median Income',
+                        legend = FALSE,
+                        col.regions = viridis
+)
+m18 <- mapview::mapview(income_data_counties_2018_spatial, zcol='estimate',
+                        layer.name='Estimated Median Income',
+                        legend = FALSE,
+                        col.regions = viridis
+)
+m19 <- mapview::mapview(income_data_counties_2019_spatial, zcol='estimate',
+                        layer.name='Estimated Median Income',
+                        legend = FALSE,
+                        col.regions = viridis
+)
+m20 <- mapview::mapview(income_data_counties_2020_spatial, zcol='estimate',
+                        layer.name='Estimated Median Income',
+                        legend = FALSE,
+                        col.regions = viridis
+)
+
+leaflet_map10 <- m10@map %>%
+  addLegend(
+    pal = pal_continuous,
+    values = income_data_counties_2010_spatial$estimate,
+    title = "Income of Florida in 2010",
+    na.label = "0"
+  )
+leaflet_map11 <- m11@map %>%
+  addLegend(
+    pal = pal_continuous,
+    values = income_data_counties_2011_spatial$estimate,
+    title = "Income of Florida in 2011",
+    na.label = "0"
+  )
+leaflet_map12 <- m12@map %>%
+  addLegend(
+    pal = pal_continuous,
+    values = income_data_counties_2012_spatial$estimate,
+    title = "Income of Florida in 2012",
+    na.label = "0"
+  )
+leaflet_map13 <- m13@map %>%
+  addLegend(
+    pal = pal_continuous,
+    values = income_data_counties_2013_spatial$estimate,
+    title = "Income of Florida in 2013",
+    na.label = "0"
+  )
+leaflet_map14 <- m14@map %>%
+  addLegend(
+    pal = pal_continuous,
+    values = income_data_counties_2014_spatial$estimate,
+    title = "Income of Florida in 2014",
+    na.label = "0"
+  )
+leaflet_map15 <- m15@map %>%
+  addLegend(
+    pal = pal_continuous,
+    values = income_data_counties_2015_spatial$estimate,
+    title = "Income of Florida in 2015",
+    na.label = "0"
+  )
+leaflet_map16 <- m16@map %>%
+  addLegend(
+    pal = pal_continuous,
+    values = income_data_counties_2016_spatial$estimate,
+    title = "Income of Florida in 2016",
+    na.label = "0"
+  )
+leaflet_map17 <- m17@map %>%
+  addLegend(
+    pal = pal_continuous,
+    values = income_data_counties_2017_spatial$estimate,
+    title = "Income of Florida in 2017",
+    na.label = "0"
+  )
+leaflet_map18 <- m18@map %>%
+  addLegend(
+    pal = pal_continuous,
+    values = income_data_counties_2018_spatial$estimate,
+    title = "Income of Florida in 2018",
+    na.label = "0"
+  )
+leaflet_map19 <- m19@map %>%
+  addLegend(
+    pal = pal_continuous,
+    values = income_data_counties_2019_spatial$estimate,
+    title = "Income of Florida in 2019",
+    na.label = "0"
+  )
+leaflet_map20 <- m20@map %>%
+  addLegend(
+    pal = pal_continuous,
+    values = income_data_counties_2020_spatial$estimate,
+    title = "Income of Florida in 2020",
+    na.label = "0"
+  )
+
+
+```
+
+```{r}
+ui <- fluidPage(
+  selectInput("selected_map","Map:",
+              choices = c('2010','2011','2012','2013','2014','2015',
+                          '2016','2017','2018','2019','2020'),
+              selected = "2010"),
+  leafletOutput("map")
+)
+```
+
+```{r}
+ui <- dashboardPage(
+  dashboardHeader(title='Florida Policing'),
+  dashboardSidebar(),
+  dashboardBody(fluidPage(
+  selectInput("selected_map","Average Household Income from 2010-2020:",
+              choices = c('2010','2011','2012','2013','2014','2015',
+                          '2016','2017','2018','2019','2020'),
+              selected = "2010"),
+  leafletOutput("map")
+  )
+  )
+)
+```
+
+```{r maps}
+# Server logic for the Shiny app
+server <- function(input, output) {
+  output$map <- renderLeaflet({
+  # Filter data based on input
+    if (input$selected_map == "2010") {
+      map <- leaflet_map10
+    } else if (input$selected_map == "2011") {
+      map <- leaflet_map11
+    } else if (input$selected_map == "2012") {
+      map <- leaflet_map12
+    } else if (input$selected_map == "2013") {
+      map <- leaflet_map13
+    } else if (input$selected_map == "2014") {
+      map <- leaflet_map14
+    } else if (input$selected_map == "2015") {
+      map <- leaflet_map15
+    } else if (input$selected_map == "2016") {
+      map <- leaflet_map16
+    } else if (input$selected_map == "2017") {
+      map <- leaflet_map17
+    } else if (input$selected_map == "2018") {
+      map <- leaflet_map18
+    } else if (input$selected_map == "2019") {
+      map <- leaflet_map19
+    } else {
+      map <- leaflet_map20
+    } 
+    map
+  })
+}
+
+shinyApp(ui, server)
+  
+```
+
+```{r}
+renderPlotly({
+  ggplotly(ggplot(fl_pop_changed,aes(fill=Race,y=Value,x=Status)) +
+    geom_bar(position="fill", stat="identity") +
+    theme_ipsum(base_size = 18) +
+      theme(
+          axis.title.x = element_text(size = 20),
+          axis.title.y = element_text(size = 20)) +
+    scale_fill_ipsum() +
+    labs(title = paste("Proportion of General and Prison Populations"),
+         x = "Status",
+         y = "Proportion")
+    )
+})
+```
