@@ -17,13 +17,12 @@ library(dplyr)
 library(tidyverse)
 library(lubridate)
 
-# in order to download the dataset (not available on github), here is the link: https://stacks.stanford.edu/file/druid:yg821jf8611/yg821jf8611_fl_statewide_2020_04_01.csv.zip
 fl_statewide <- fl_statewide_2020_04_01 %>%
   select(date, county_name, subject_race, outcome)
 fl_statewide[is.na(fl_statewide)] <- "unknown"
 print(fl_statewide)
 
-#narrowing data
+#cleaning data
 fl_statewide$year <- format(as.Date(fl_statewide$date, format="%Y-%m-%d"), "%Y")
 fl_statewide$date <- NULL
 fl_2016<- fl_statewide %>%
